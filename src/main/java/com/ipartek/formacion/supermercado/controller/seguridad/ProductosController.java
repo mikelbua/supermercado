@@ -8,83 +8,144 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ipartek.formacion.supermercado.modelo.dao.ProductoDAO;
+import com.ipartek.formacion.supermercado.modelo.pojo.Producto;
 
 /**
  * Servlet implementation class ProductosController
  */
-@WebServlet("/seguridad/producto")
+@WebServlet("/seguridad/productos")
 public class ProductosController extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-	private static final String VIEW_TABLA = "producto/index.jsp";
-	private static final String VIEW_FORM = "productos/formulario.jsp";
-	private static String FORWARD = VIEW_TABLA;
 	
-	private ProductoDAO dao;
+	private static final long serialVersionUID = 1L;
+	private static final String VIEW_TABLA = "productos/index.jsp";
+	private static final String VIEW_FORM = "productos/formulario.jsp";
+	private static String vistaSeleccionda = VIEW_TABLA;
+	private static ProductoDAO dao;
 	
 	//acciones
-	private static final String ACCION_LISTAR = "listar";
-	private static final String ACCION_IR_FORMULARIO = "formulario";
-	private static final String ACCCION_GUARDAR = "guardar";//crear modificar
-	private static final String ACCCION_ELIMINAR = "eliminar";
+	public static final String ACCION_LISTAR = "listar";
+	public static final String ACCION_IR_FORMULARIO = "formulario";
+	public static final String ACCION_GUARDAR = "guardar";   // crear y modificar
+	public static final String ACCION_ELIMINAR = "eliminar";
 	
-	//parametros los declaramos aqui par qeu sean globales 
-	//y poder usarlos en nuestras funciones (eliminar,crear,modificar...)
-	String pAccion;
 	
+	
+	//parametros
+	String pAccion;	
 	String pId;
 	String pNombre;
 	String pPrecio;
-	String pFoto;
+	String pImagen;
 	String pDescripcion;
-	String pDecuento;
+	String pDescuento;
 	
 	
 	@Override
-	public void init() throws ServletException {
-		super.init();
+	public void init(ServletConfig config) throws ServletException {		
+		super.init(config);
 		dao = ProductoDAO.getInstance();
 	}
-	
+      
 	@Override
-	public void destroy() {
+	public void destroy() {	
 		super.destroy();
 		dao = null;
 	}
+    
+
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doAction(request,response);
+		doAction(request, response);
 	}
+
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doAction(request,response);
+		doAction(request, response);
 	}
-	
+
 	private void doAction(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		//Recogemos todos los parametros.
-		String pAccion = request.getParameter("accion");
-		
-		String pId = request.getParameter("id");
-		String pNombre = request.getParameter("nombre");
-		String pPrecio = request.getParameter("precio");
-		String pFoto = request.getParameter("foto");
-		String pDescripcion = request.getParameter("descripcion");
-		String pDecuento = request.getParameter("descuento");
-		
-		try {
-			//TODO logica de negocio
+	
+			//recoger parametros
+			pAccion = request.getParameter("accion");
+			pId = request.getParameter("id");
+			pNombre = request.getParameter("nombre");
+			pPrecio = request.getParameter("precio");
+			pImagen = request.getParameter("imagen");
+			pDescripcion = request.getParameter("descripcion");
+			pDescuento = request.getParameter("descuento");
 			
 			
-		} catch (Exception e) {
-			e.printStackTrace(); 
-		} finally {
-			request.getRequestDispatcher("").forward(request, response);
-		}
+			try {
+				
+				switch (pAccion) {
+				case ACCION_LISTAR:
+					listar(request, response);
+					break;
+				case ACCION_ELIMINAR:	
+					eliminar(request, response);
+					break;
+				case ACCION_GUARDAR:	
+					guardar(request, response);
+					
+				case ACCION_IR_FORMULARIO:	
+					irFormulario(request, response);
+				default:
+					listar(request, response);
+					break;
+				}
+				
+				
+				
+				
+			}catch (Exception e) {
+				// TODO log
+				e.printStackTrace();
+				
+			}finally {
+				
+				request.getRequestDispatcher(vistaSeleccionda).forward(request, response);
+			}
+			
+			
+		
 		
 	}
+
+
+	private void irFormulario(HttpServletRequest request, HttpServletResponse response) {
+		
+		//TODO pregutar por pID > 0 recuperar del DAO
+		// si no New Producto()
+		
+		//  	dao.getById(id) => implementar
+		
+		request.setAttribute("producto", new Producto() );
+		vistaSeleccionda = VIEW_FORM;
+		
+	}
+
+	private void guardar(HttpServletRequest request, HttpServletResponse response) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void eliminar(HttpServletRequest request, HttpServletResponse response) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void listar(HttpServletRequest request, HttpServletResponse response) {
+		
+		request.setAttribute("productos", dao.getAll() );
+		vistaSeleccionda = VIEW_TABLA;
+		
+	}
+	
+	
 
 }
