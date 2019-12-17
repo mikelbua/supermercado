@@ -34,7 +34,7 @@ public class LoginController extends HttpServlet {
 		String nombre = (String)request.getParameter("usuario");
 		String pass = (String)request.getParameter("contrasenia");
 		try {
-			if(USUARIO.equals("admin") && CONTRASENIA.equalsIgnoreCase("admin")) {
+			if(USUARIO.equals(nombre) && CONTRASENIA.equalsIgnoreCase(pass)) {
 				
 				HttpSession session = request.getSession();
 				session.setAttribute("usuarioLogeado", nombre);
@@ -50,7 +50,6 @@ public class LoginController extends HttpServlet {
 			e.printStackTrace();
 			
 		} finally {
-			
 			request.getRequestDispatcher(view).forward(request, response);
 		}
 		

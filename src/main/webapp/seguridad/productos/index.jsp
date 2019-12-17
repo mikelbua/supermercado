@@ -13,7 +13,7 @@
             <!-- esta clase ya esta definida en el css bootstrap la centra y tiene
             mediaquerys para los diferentes tamaños de dispositivos-->
             <h1>Nuestros Productos</h1>
-            <a href="seguridad/productos?accion=formulario">Nuevo Producto</a>
+            <a href="seguridad/productos?accion=formulario&id=0">Nuevo Producto</a>
             <div class="container-fluid">
 
                 <!-- Page Heading -->
@@ -58,7 +58,7 @@
 	                                        <td>${p.descuento}%</td>
 	                                        <td>${p.descripcion}</td>
 	                                        <td>${p.precioDescuento}€</td>
-	                                        <td><a href="/seguridad/productos?accion=formulario&id=${p.id}">Editar</a></td>
+	                                        <td><a href="seguridad/productos?accion=formulario&id=${p.id}">Editar</a></td>
 	                                    </tr>
 	                                </c:forEach>
                                 </tbody>

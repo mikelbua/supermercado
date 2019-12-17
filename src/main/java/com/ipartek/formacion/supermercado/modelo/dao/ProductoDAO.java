@@ -13,6 +13,7 @@ public class ProductoDAO implements IDAO<Producto>{
 	private int indice=1;
 	
 	
+	
 	private ProductoDAO() {
 		
 		super();
