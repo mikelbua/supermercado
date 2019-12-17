@@ -1,9 +1,17 @@
-<%@ include file="/../includes/header.jsp"%>
+<%@ include file="/includes/header.jsp"%>
+
+<%@ page contentType="text/html; charset=UTF-8" %>
+
+<h1> Dashboard Seguridad/index.jsp</h1>
 
 
-<%@page contentType="text/html" charset="UTF-8" %>
-
-<h1> Dashboard</h1>
 
 
-<%@ include file="/../includes/footer.jsp"%>
+
+
+
+
+
+
+
+<%@ include file="/includes/footer.jsp"%>

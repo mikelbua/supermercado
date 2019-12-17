@@ -51,7 +51,7 @@ public class LoginController extends HttpServlet {
 			
 		} finally {
 			
-			request.getRequestDispatcher("view").forward(request, response);
+			request.getRequestDispatcher(view).forward(request, response);
 		}
 		
 		

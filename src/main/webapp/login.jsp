@@ -1,7 +1,5 @@
 <%@ include file="/includes/header.jsp"%>
-
-
-<%@page contentType="text/html" charset="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 
 <div class="row justify-content-center">
             <div class="col-4 mt-5 bg-warn">

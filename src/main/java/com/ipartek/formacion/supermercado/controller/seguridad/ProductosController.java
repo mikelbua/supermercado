@@ -1,6 +1,8 @@
 package com.ipartek.formacion.supermercado.controller.seguridad;
 
 import java.io.IOException;
+
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -72,6 +74,7 @@ public class ProductosController extends HttpServlet {
 	
 			//recoger parametros
 			pAccion = request.getParameter("accion");
+			
 			pId = request.getParameter("id");
 			pNombre = request.getParameter("nombre");
 			pPrecio = request.getParameter("precio");
@@ -94,6 +97,7 @@ public class ProductosController extends HttpServlet {
 					
 				case ACCION_IR_FORMULARIO:	
 					irFormulario(request, response);
+					break;
 				default:
 					listar(request, response);
 					break;

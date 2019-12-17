@@ -10,9 +10,9 @@
 
                 <!-- producto -->
                 <div class="producto">
-                    <span class="descuento">20%</span>
+                    <span class="descuento">${p.descuento}%</span>
                     <img src="${p.getFoto()}" alt="imagen de bottela de vodka">
-
+					
                     <div class="body">
                         <p>
                             <span class="precio-descuento">

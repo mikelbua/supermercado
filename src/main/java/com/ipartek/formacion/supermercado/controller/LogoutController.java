@@ -36,6 +36,7 @@ public class LogoutController extends HttpServlet {
 		
 		request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_PRIMARY,"Gracias por su visita"));
 		
+		request.getRequestDispatcher("/login.jsp").forward(request, response);
 	}
 
 }
