@@ -1,6 +1,6 @@
 <%@ include file="/includes/header.jsp"%>
 <%@ page contentType="text/html; charset=UTF-8" %>
-
+  
 		
         <div class="row contenedor-productos">
         
