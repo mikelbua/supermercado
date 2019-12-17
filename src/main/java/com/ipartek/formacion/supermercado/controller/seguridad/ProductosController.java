@@ -113,7 +113,7 @@ public class ProductosController extends HttpServlet {
 		}
 
 	}
-
+	
 	private void irFormulario(HttpServletRequest request, HttpServletResponse response) {
 
 		Producto productoVisualizar = new Producto();
@@ -157,8 +157,10 @@ public class ProductosController extends HttpServlet {
 
 	}
 
-	private void eliminar(HttpServletRequest request, HttpServletResponse response) {
-		// TODO Auto-generated method stub
+	private void eliminar(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		int id = Integer.parseInt(pId);
+		dao.delete(id);
 
 	}
 
