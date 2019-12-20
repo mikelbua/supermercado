@@ -12,17 +12,18 @@
 
             <!-- esta clase ya esta definida en el css bootstrap la centra y tiene
             mediaquerys para los diferentes tamaños de dispositivos-->
-            <h1>Nuestros Productos</h1>
-            <a href="seguridad/productos?accion=formulario&id=0">Nuevo Producto</a>
-            <div class="container-fluid">
+            <h1>Productos</h1>
+            <div class="container-fluid mt-3">
 
                 <!-- Page Heading -->
-                <p class="mb-4">En esta tabla estan todos los Productos.</p>
 
                 <!-- DataTales Example -->
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Listado Productos</h6>
+                    <span>
+                        <h6 class="m-0 font-weight-bold text-primary float-left"><i class="fa fa-list" aria-hidden="true"></i> Listado Productos</h6>
+                        </span>
+                        <a class="float-right" href="seguridad/productos?accion=formulario&id=0" ><i class="fas fa-book"></i>Nuevo Producto</a>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -33,8 +34,6 @@
                                         <th>nombre</th>
                                         <th>precio</th>
                                         <th>descuento</th>
-                                        <th>descripcion</th>
-                                        <th>Precio final</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -44,8 +43,6 @@
                                         <th>nombre</th>
                                         <th>precio</th>
                                         <th>descuento</th>
-                                        <th>descripcion</th>
-                                        <th>Precio final</th>
                                         <th></th>
                                     </tr>
                                 </tfoot>
@@ -54,11 +51,12 @@
 	                                    <tr>
 	                                        <td>${p.id}</td>
 	                                        <td>${p.nombre}</td>
-	                                        <td>${p.precio}€</td>
+	                                        <td>
+												<fmt:formatNumber type="currency" currencySymbol="€" value="${p.precio}" />
+											</td>
 	                                        <td>${p.descuento}%</td>
-	                                        <td>${p.descripcion}</td>
-	                                        <td>${p.precioDescuento}€</td>
-	                                        <td><a href="seguridad/productos?accion=formulario&id=${p.id}">Editar</a></td>
+	                                        <td><a class="float-right" href="seguridad/productos?accion=formulario&id=${p.id}" ><i class="fa fa-pencil" aria-hidden="true"></i>-Editar-</a>
+	                                        <a class="float-right" href="seguridad/productos?accion=eliminar&id=${p.id}" ><i class="fa fa-pencil" aria-hidden="true"></i>-Eliminar-</a></td>
 	                                    </tr>
 	                                </c:forEach>
                                 </tbody>
@@ -67,5 +65,7 @@
                     </div>
                 </div>
 
-            </div>
+            </div><!-- container-fluid -->
+
+
 <%@ include file="/includes/footer.jsp"%>

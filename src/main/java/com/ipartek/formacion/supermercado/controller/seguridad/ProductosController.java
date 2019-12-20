@@ -161,6 +161,8 @@ public class ProductosController extends HttpServlet {
 		
 		int id = Integer.parseInt(pId);
 		dao.delete(id);
+		request.setAttribute("productos", dao.getAll());
+		vistaSeleccionda = VIEW_TABLA;
 
 	}
 

@@ -24,6 +24,7 @@
                         </p>
                         <p class="text-muted precio-unidad">(18,50â¬ / litro)</p>
                         <p class="descripcion">${p.descripcion}</p>
+                        <p class="descripcion">id : ${p.id} | ${p.nombre}</p>
                     </div>
 
                     <div class="botones">

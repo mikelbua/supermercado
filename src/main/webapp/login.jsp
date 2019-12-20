@@ -13,7 +13,7 @@
                                    class="form-control" 
                                    name="usuario" 
                                    required
-                                   placeholder="Mínimo 2 Máximo 150"
+                                   placeholder="Mínimo 2 Máximo 150 caracteres"
                                    pattern=".{2,150}"
                                    aria-describedby="nombreHelp">
                         </div>
@@ -26,6 +26,7 @@
                                        name="contrasenia" 
                                        required
                                        pattern=".{2,150}"
+                                       placeholder="Mínimo 6 Máximo 150 caracteres"
                                        aria-describedby="precioHelp">
                          </div>
                         <button type="submit" class="btn btn-block btn-outline-primary">login</button>
@@ -33,7 +34,5 @@
 
             </div>
         </div>  
-
-
 
 <%@ include file="/includes/footer.jsp"%>

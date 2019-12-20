@@ -3,17 +3,37 @@
     <div class="footer-wrapper">
         <footer class="container py-5">
             <div class="row">
-                <div class="col-12 col-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="d-block mb-2" role="img" viewBox="0 0 24 24" focusable="false"><title>Product</title><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94"/></svg>
-                    <small class="d-block mb-3 text-muted">&copy; 2019</small>
-                </div>
-    
-                <div class="col-6 col-md offset-6">
-                    <h5>Enlaces de Interes</h5>
-                    <ul class="list-unstyled text-small">
-                        <li><a class="text-muted" href="politica-privacidad.html">Politica Privacidad</a></li>
-                        <li><a class="text-muted" href="localizacion.html">Localización</a></li>
-                        <li><a class="text-muted" href="contacto.html">Contacto</a></li>                    
+                <div class="clearfix" style="width: 100%">
+                    <ul class="p-0 d-flex flex-column flex-sm-row justify-content-between">
+                        <li>
+                            <a href="https://es-es.facebook.com/">
+                                <i class="fab fa-facebook-f"></i>
+                                Facebook</a>
+                        </li>
+                        <li>
+                            <a href="https://twitter.com/">
+                                <i class="fab fa-twitter"></i>
+                                Twitter</a>
+                        </li>
+                        <li>
+                            <a
+                                href="https://www.google.es/maps/place/Ipartek+Servicios+Inform%C3%A1ticos/@43.2564079,-2.9157807,17z/data=!3m1!4b1!4m5!3m4!1s0xd4e4fb46238d865:0xb671edfb1120ab06!8m2!3d43.256404!4d-2.913592">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Ubicacion</a>
+                        </li>
+                        <li>
+                            <a href="/html/politica.html">
+                                <i class="fas fa-user-shield"></i>
+                                Politica de privacidad</a>
+                        </li>
+                        <li>
+                            <a href="/html/contactar.html">
+                                <i class="fas fa-id-card-alt"></i>
+                                Contacta</a>
+                        </li>
+                        <li>
+                            &copy; 2019
+                        </li>
                     </ul>
                 </div>
 
