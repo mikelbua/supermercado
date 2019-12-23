@@ -50,7 +50,7 @@ public class UsuarioDAO {
 
 		Usuario usuario = null;
 
-		try (Connection con = ConnectionManager.getConnection();
+		try (Connection con = z;
 				PreparedStatement pst = con.prepareStatement(SQL_EXISTE);) {
 
 			// sustituir ? por parametros

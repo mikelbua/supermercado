@@ -1,16 +1,34 @@
 package com.ipartek.formacion.supermercado.modelo.pojo;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.NotBlank;
+
 public class Producto {
 
 	public static final int DESCUENTO_MIN=1;
 	public static final int DESCUENTO_MAX=100;
 	
 	private int id;
+	
+	@NotNull
+	@NotBlank
+	@Size(min = 2, max = 50)
 	private String nombre;
+	
 	private float precio;
+	
 	private String foto;
+	
+	
 	private String descripcion;
-	private int descuento;//este atributo sera un numero entre 1 y 100.
+	
+	@Min(0)
+	@Max(100)
+	private int descuento;//Este atributo sera un numero entre 1 y 100.
 	
 	
 	public Producto() {
@@ -33,9 +51,6 @@ public class Producto {
 		this.descripcion = descripcion;
 		this.descuento = descuento;
 	}
-
-
-
 
 	public int getId() {
 		return id;
@@ -110,9 +125,7 @@ public class Producto {
 	public float getPrecioDescuento(){
 		float resul=0;
 		
-		resul = (this.precio - (this.precio*(this.descuento/100)));
-		
-		return resul;
+		return (  (this.precio * ( 100 - this.descuento )) / 100  );
 		
 	}
 	

@@ -23,7 +23,7 @@
                     <span>
                         <h6 class="m-0 font-weight-bold text-primary float-left"><i class="fa fa-list" aria-hidden="true"></i> Listado Productos</h6>
                         </span>
-                        <a class="float-right" href="seguridad/productos?accion=formulario&id=0" ><i class="fas fa-book"></i>Nuevo Producto</a>
+                        <a class="float-right" href="seguridad/productos?accion=formulario&id=0" ><i class="fas fa-plus-circle"></i>Nuevo Producto</a>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -34,7 +34,7 @@
                                         <th>nombre</th>
                                         <th>precio</th>
                                         <th>descuento</th>
-                                        <th></th>
+                                        <th>Editar</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
@@ -43,7 +43,7 @@
                                         <th>nombre</th>
                                         <th>precio</th>
                                         <th>descuento</th>
-                                        <th></th>
+                                        <th>Editar</th>
                                     </tr>
                                 </tfoot>
                                 <tbody>
@@ -55,8 +55,8 @@
 												<fmt:formatNumber type="currency" currencySymbol="€" value="${p.precio}" />
 											</td>
 	                                        <td>${p.descuento}%</td>
-	                                        <td><a class="float-right" href="seguridad/productos?accion=formulario&id=${p.id}" ><i class="fa fa-pencil" aria-hidden="true"></i>-Editar-</a>
-	                                        <a class="float-right" href="seguridad/productos?accion=eliminar&id=${p.id}" ><i class="fa fa-pencil" aria-hidden="true"></i>-Eliminar-</a></td>
+	                                        <td><a href="seguridad/productos?accion=formulario&id=${p.id}" >Editar <i class="fas fa-pencil-alt"></i></a>
+	                                        </td>
 	                                    </tr>
 	                                </c:forEach>
                                 </tbody>

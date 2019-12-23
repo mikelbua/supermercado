@@ -1,6 +1,7 @@
 package com.ipartek.formacion.supermercado.controller.seguridad;
 
 import java.io.IOException;
+import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -8,6 +9,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import com.ipartek.formacion.supermercado.controller.Alerta;
 import com.ipartek.formacion.supermercado.modelo.dao.ProductoDAO;
@@ -31,6 +36,12 @@ public class ProductosController extends HttpServlet {
 	public static final String ACCION_GUARDAR = "guardar"; // crear y modificar
 	public static final String ACCION_ELIMINAR = "eliminar";
 
+	//Crear Factoria y Validador las inicializamos en el metidi init ma abajo.
+	 ValidatorFactory factory;
+	 Validator validator;
+	
+	
+	
 	// parametros
 	String pAccion;
 	String pId;
@@ -43,13 +54,20 @@ public class ProductosController extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+		
 		dao = ProductoDAO.getInstance();
+		
+		factory = Validation.buildDefaultValidatorFactory();
+		validator = factory.getValidator();
 	}
 
 	@Override
 	public void destroy() {
 		super.destroy();
 		dao = null;
+		
+		factory = null;
+		validator = null;
 	}
 
 	/**
@@ -104,7 +122,7 @@ public class ProductosController extends HttpServlet {
 			}
 
 		} catch (Exception e) {
-			// TODO log
+			
 			e.printStackTrace();
 
 		} finally {
@@ -117,52 +135,92 @@ public class ProductosController extends HttpServlet {
 	private void irFormulario(HttpServletRequest request, HttpServletResponse response) {
 
 		Producto productoVisualizar = new Producto();
-		int id = Integer.parseInt(pId);
-		
-		if (0 < id) { 
+		if ( pId != null) {
 			
-			productoVisualizar = dao.getById(id);
-
+			int id = Integer.parseInt(pId);
+			if(id > 0) {
+				productoVisualizar = dao.getById(id);
+			} else {
+				productoVisualizar.setId(id);
+			}
 		}
-
-		request.setAttribute("producto", productoVisualizar);
+		
+		
+		request.setAttribute("producto", productoVisualizar );
 		vistaSeleccionda = VIEW_FORM;
 
 	}
 
 	private void guardar(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		Producto product = new Producto();
-		String mensaje = "";
-		int id = Integer.parseInt(pId);
 		
-		if (0 == id) { 
+		int id = Integer.parseInt(pId);
+		Producto pGuardar = new Producto();	
+		
+		pGuardar.setId(id);
+		pGuardar.setNombre(pNombre);
+		pGuardar.setPrecio(Float.parseFloat(pPrecio));
+		pGuardar.setDescuento( Integer.parseInt(pDescuento));
+		
+		
+		Set<ConstraintViolation<Producto>> validaciones = validator.validate(pGuardar);
+		if( validaciones.size() > 0 ) {			
+			mensajeValidacion(request, validaciones);//este metodo valida y devuelve mensajes.
+		}else {	
+		
+				try {
+				
+					if ( id > 0 ) {  // modificar
+						
+						dao.update(id, pGuardar);		
+						request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_PRIMARY, "Producto modificado con exito. Vaya a la tabla para visualizarlo."));
+					}else {            // crear
+						dao.create(pGuardar);
+						request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_PRIMARY, "Producto creado con exito. Vaya a la tabla para visualizarlo."));
+					}
+					
+				}catch (Exception e) {  // validacion a nivel de base datos
+					
+					request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_DANGER, "El nombre ya existe, selecciona otro"));
+				}					
 			
-			product.setNombre(pNombre);
-			dao.create(product);
-			request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_PRIMARY,"producto creao con exito"));
-			
-		} else {
-			
-			product.setId(id);
-			product.setNombre(pNombre);
-			dao.update(id, product);	
-			request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_PRIMARY,"Datos guardados con exito"));
 			
 		}
 		
-		
-		request.setAttribute("producto", product);
-		request.setAttribute("mesaje", mensaje);
+		request.setAttribute("producto", pGuardar);
 		vistaSeleccionda = VIEW_FORM;
 
 	}
+	
+	private void mensajeValidacion(HttpServletRequest request, Set<ConstraintViolation<Producto>> validaciones ) {
+
+		StringBuilder mensaje = new StringBuilder();
+		for (ConstraintViolation<Producto> cv : validaciones) {
+			
+			mensaje.append("<p>");
+			mensaje.append(cv.getPropertyPath()).append(": ");
+			mensaje.append(cv.getMessage());
+			mensaje.append("</p>");
+			
+		}
+		
+		request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_DANGER, mensaje.toString() ));
+		
+	}
+	
+	
 
 	private void eliminar(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		int id = Integer.parseInt(pId);
-		dao.delete(id);
-		request.setAttribute("productos", dao.getAll());
-		vistaSeleccionda = VIEW_TABLA;
+		try {
+			Producto pEliminado = dao.delete(id);
+			request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_PRIMARY, "Eliminado " + pEliminado.getNombre() ));
+		} catch (Exception e) {
+			request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_DANGER, "No se puede Eliminar el producto"));
+			
+		}
+		
+		listar(request, response);
 
 	}
 

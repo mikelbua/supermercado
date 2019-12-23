@@ -22,12 +22,12 @@
                                 Ubicacion</a>
                         </li>
                         <li>
-                            <a href="/html/politica.html">
+                            <a href="politica-privacidad.html">
                                 <i class="fas fa-user-shield"></i>
                                 Politica de privacidad</a>
                         </li>
                         <li>
-                            <a href="/html/contactar.html">
+                            <a href="contacto.html">
                                 <i class="fas fa-id-card-alt"></i>
                                 Contacta</a>
                         </li>

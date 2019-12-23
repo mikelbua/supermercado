@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,8 +18,12 @@ public class ProductoDAO implements IDAO<Producto>{
 	private ArrayList<Producto> registros;
 	
 	
-	private static final String SQL_GET_ALL = "SELECT id, nombre FROM producto ORDER BY id DESC LIMIT 500;";
-
+	private static final String SQL_GET_ALL = "SELECT id, nombre, precio , descuento FROM producto ORDER BY id DESC LIMIT 500;";
+	private static final String SQL_GET_BY_ID ="SELECT id, nombre,precio,descuento FROM producto WHERE id = ? ;"; 
+	private static final String SQL_GET_INSERT ="INSERT INTO producto (nombre , precio , descuento) VALUES ( ?  ,  ?  ,  ? );";
+	private static final String SQL_GET_UPDATE ="UPDATE producto SET nombre = ? WHERE id = ? ;";
+	private static final String SQL_DELETE ="DELETE FROM producto WHERE id = ? ;";
+	
 	private ProductoDAO() {		
 		super();			
 	}
@@ -46,6 +51,8 @@ public class ProductoDAO implements IDAO<Producto>{
 				Producto p = new Producto();
 				p.setId( rs.getInt("id"));
 				p.setNombre(rs.getString("nombre"));
+				p.setPrecio(rs.getFloat("precio"));
+				p.setDescuento(rs.getInt("descuento"));
 				lista.add(p);
 
 			}
@@ -57,21 +64,34 @@ public class ProductoDAO implements IDAO<Producto>{
 		return lista;
 	}
 
-	@SuppressWarnings("null")
+	
 	@Override
 	public Producto getById(int id) {
 		
 		Producto resul = null;
 
 		try (Connection con = ConnectionManager.getConnection();
-				PreparedStatement pst = con.prepareStatement("SELECT id,nombre FROM producto WHERE id= "+id+";");
-				ResultSet rs = pst.executeQuery()) {
+				PreparedStatement pst = con.prepareStatement(SQL_GET_BY_ID);
+				) {
 			
-			resul = new Producto();
-			resul.setId( rs.getInt("id"));
-			resul.setNombre(rs.getString("nombre"));
-				
-		} catch (SQLException e) {
+			// sustituyo parametros en la SQL, en este caso 1º ? por id			
+						pst.setInt(1, id);
+						
+						//ejecuto la consulta
+						try( ResultSet rs = pst.executeQuery() ){
+
+							while (rs.next()) {
+								
+								resul = new Producto();
+								resul.setId( rs.getInt("id"));
+								resul.setNombre(rs.getString("nombre"));
+								resul.setPrecio(rs.getFloat("precio"));
+								resul.setDescuento(rs.getInt("descuento"));
+									
+							}
+						}	
+
+					} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		
@@ -82,15 +102,20 @@ public class ProductoDAO implements IDAO<Producto>{
 	public Producto delete(int id) throws Exception {
 		Producto resul = null;
 
-		for (Producto producto : registros) {
-			if (id == producto.getId()) {
-				resul = producto;
-				registros.remove(producto);
-				break;
+		try (Connection con = ConnectionManager.getConnection();
+				PreparedStatement pst = con.prepareStatement(SQL_DELETE)) {
+
+			pst.setInt(1, id);			
+			
+			resul = this.getById(id); //Recuperar
+			
+			
+			int affectedRows = pst.executeUpdate();  //Eliminar
+			if (affectedRows != 1) {
+				resul = null;
+				throw new Exception("No se puede eliminar " + resul);
 			}
-		}
-		if (resul == null) {
-			throw new Exception("no ha encontrado el producto que habia que borrar." + "ID = "+id);
+
 		}
 
 		return resul;
@@ -99,31 +124,44 @@ public class ProductoDAO implements IDAO<Producto>{
 	@Override
 	public Producto update(int id, Producto pojo) throws Exception {
 		
-		Producto resul = null;
-		
-		for (int i = 0; i < registros.size(); i++) {
-			if (id == registros.get(i).getId()) {
-				registros.remove(i);
-				registros.add(pojo);
-				resul = pojo;
-				break;
+		try (Connection con = ConnectionManager.getConnection();
+				PreparedStatement pst = con.prepareStatement(SQL_GET_UPDATE)) {
+
+			pst.setString(1, pojo.getNombre());
+			pst.setInt(2, id);
+			
+			int affectedRows = pst.executeUpdate();  // lanza una excepcion si nombre repetido
+			if (affectedRows == 1) {
+				pojo.setId(id);				
+			}else {
+				throw new Exception("No se encontro registro para id=" + id);
 			}
+
 		}
-		if (resul == null) {
-			throw new Exception("no ha encontrado el perro qeu habia que borrar" + id);
-		}
-		return resul;
+		return pojo; 
 	}
 
 	@Override
 	public Producto create(Producto pojo) throws Exception {
-		Producto resul = null;
-		if (pojo != null) {
-			registros.add(pojo);
-		} else {
-			throw new Exception("perro NULL sin datos");
+		try (Connection con = ConnectionManager.getConnection();
+				PreparedStatement pst = con.prepareStatement( SQL_GET_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+
+			pst.setString(1, pojo.getNombre());
+			pst.setFloat(2, pojo.getPrecio());
+			pst.setInt(3, pojo.getDescuento());
+
+			int affectedRows = pst.executeUpdate();
+			if (affectedRows == 1) {
+				// conseguimos el ID que acabamos de crear
+				ResultSet rs = pst.getGeneratedKeys();
+				if (rs.next()) {
+					pojo.setId(rs.getInt(1));
+				}
+
+			}
+
 		}
-		
-		return resul;
+
+		return pojo;
 	}
 }
