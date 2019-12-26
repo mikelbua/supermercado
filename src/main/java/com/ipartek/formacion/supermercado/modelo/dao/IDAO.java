@@ -6,7 +6,7 @@ import java.util.List;
 public interface IDAO<P> {
 
 	/**
-	 * Creamos las finciones qeu despues deberan implementar todos los que utilicen la interface
+	 * Creamos las funciones qeu despues deberan implementar todos los que utilicen la interface
 	 * @return
 	 */
 	

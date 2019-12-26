@@ -4,24 +4,24 @@
     	
 	<h1>FORMULARIO</h1>
 	
-	<c:if test="${producto.id == 0}">
-		<h3>Nuevo Producto</h3>
+	<c:if test="${usuario.id == 0}">
+		<h3>Nuevo Usuario</h3>
 	</c:if>
-	<c:if test="${producto.id > 0}">
-		<h3>Editar Producto</h3>
+	<c:if test="${usuario.id > 0}">
+		<h3>Editar Usuario</h3>
 	</c:if>
 	<c:if test="${not empty mensajeAlerta }"/>
 	
 	<div class="row justify-content-center">
             <div class="col-4 mt-5 bg-warn">
 
-                    <form action="seguridad/productos" method="post">
+                    <form action="seguridad/usuarios" method="post">
                     
 
                         <div class="form-group">
                             <label for="id">id</label>
                             <input type="text"
-                            	   value="${producto.id}"
+                            	   value="${usuario.id}"
                                    class="form-control" 
                                    name="id"
                                    readonly
@@ -32,7 +32,7 @@
                             <label for="nombre">Nombre</label>
                             <input type="text" 
                             	   autofocus
-                            	   value="${producto.nombre}"
+                            	   value="${usuario.nombre}"
                                    class="form-control" 
                                    name="nombre" 
                                    required
@@ -40,34 +40,24 @@
                                    pattern=".{2,50}">
                         </div>
                         <div class="form-group">
-                            <label for="precio">Precio</label>
+                            <label for="contrasenia">contrasenia</label>
                             <input type="text" 
-                            	   value="${producto.precio}"
+                            	   value="${usuario.contrasenia}"
                                    class="form-control" 
-                                   name="precio" 
+                                   name="contrasenia" 
                                    required
                                    placeholder="precio del producto">
                         </div>
                         
-                        <div class="form-group">
-                            <label for="descuento">Descuento</label>
-                            <input type="text" 
-                            	   value="${producto.descuento}"
-                                   class="form-control" 
-                                   name="descuento" 
-                                   required
-                                   placeholder="descuento del producto">
-                        </div>
-                        
                         <input type="text" hidden name="accion" value="guardar">
                         
-                        <button type="submit" class="btn btn-block btn-outline-primary mb-5">Listo</button>
+                        <button type="submit" class="btn btn-block btn-outline-primary mb-4">Listo</button>
                     	
                     </form>
-					<c:if test="${producto.id > 0}">
+					<c:if test="${usuario.id > 0}">
 		
 						<!-- Button trigger modal -->
-						<button type="button" class="btn btn-outline-danger mb-3 mt-3" data-toggle="modal" data-target="#exampleModal">
+						<button type="button" class="btn btn-outline-danger mb-5" data-toggle="modal" data-target="#exampleModal">
 						  Eliminar
 						</button>
 						
@@ -82,17 +72,16 @@
 						        </button>
 						      </div>
 						      <div class="modal-body">
-						       ¿Esta seguro de que quiere eliminar el producto : <span style="color: red;">${producto.nombre}</span>?
+						       ¿Esta seguro de que quiere eliminar el usuario : <span style="color: red;">${usuario.nombre}</span>?
 						      </div>
 						      <div class="modal-footer">
 						        <button type="button" class="btn btn-secondary" data-dismiss="modal">cerrar</button>
-						        <a class="btn btn-danger" href="seguridad/productos?id=${producto.id}&accion=eliminar" style="margin-top: 5px">Eliminar</a>
+						        <a class="btn btn-danger" href="seguridad/usuarios?id=${usuario.id}&accion=eliminar" style="margin-top: 5px">Eliminar</a>
 						      </div>
 						    </div>
 						  </div>
 						</div>
 					</c:if>
-				
             </div>
         </div>  
 

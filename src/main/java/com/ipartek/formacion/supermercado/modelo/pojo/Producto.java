@@ -26,7 +26,7 @@ public class Producto {
 	
 	private String descripcion;
 	
-	@Min(0)
+	@Min(1)
 	@Max(100)
 	private int descuento;//Este atributo sera un numero entre 1 y 100.
 	

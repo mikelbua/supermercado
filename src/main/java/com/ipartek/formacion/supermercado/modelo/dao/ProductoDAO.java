@@ -18,10 +18,10 @@ public class ProductoDAO implements IDAO<Producto>{
 	private ArrayList<Producto> registros;
 	
 	
-	private static final String SQL_GET_ALL = "SELECT id, nombre, precio , descuento FROM producto ORDER BY id DESC LIMIT 500;";
+	private static final String SQL_GET_ALL = "SELECT id, nombre, precio , foto , descuento FROM producto ORDER BY id DESC LIMIT 500;";
 	private static final String SQL_GET_BY_ID ="SELECT id, nombre,precio,descuento FROM producto WHERE id = ? ;"; 
 	private static final String SQL_GET_INSERT ="INSERT INTO producto (nombre , precio , descuento) VALUES ( ?  ,  ?  ,  ? );";
-	private static final String SQL_GET_UPDATE ="UPDATE producto SET nombre = ? WHERE id = ? ;";
+	private static final String SQL_GET_UPDATE ="UPDATE producto SET nombre = ? , precio = ? , descuento = ? WHERE id = ?;";
 	private static final String SQL_DELETE ="DELETE FROM producto WHERE id = ? ;";
 	
 	private ProductoDAO() {		
@@ -52,6 +52,7 @@ public class ProductoDAO implements IDAO<Producto>{
 				p.setId( rs.getInt("id"));
 				p.setNombre(rs.getString("nombre"));
 				p.setPrecio(rs.getFloat("precio"));
+				p.setFoto(rs.getString("foto"));
 				p.setDescuento(rs.getInt("descuento"));
 				lista.add(p);
 
@@ -128,7 +129,9 @@ public class ProductoDAO implements IDAO<Producto>{
 				PreparedStatement pst = con.prepareStatement(SQL_GET_UPDATE)) {
 
 			pst.setString(1, pojo.getNombre());
-			pst.setInt(2, id);
+			pst.setFloat(2, pojo.getPrecio());
+			pst.setInt(3, pojo.getDescuento());
+			pst.setInt(4, id);
 			
 			int affectedRows = pst.executeUpdate();  // lanza una excepcion si nombre repetido
 			if (affectedRows == 1) {
@@ -143,6 +146,7 @@ public class ProductoDAO implements IDAO<Producto>{
 
 	@Override
 	public Producto create(Producto pojo) throws Exception {
+		
 		try (Connection con = ConnectionManager.getConnection();
 				PreparedStatement pst = con.prepareStatement( SQL_GET_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -164,4 +168,6 @@ public class ProductoDAO implements IDAO<Producto>{
 
 		return pojo;
 	}
-}
+	
+	
+}//class final

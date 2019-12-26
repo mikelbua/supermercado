@@ -11,7 +11,7 @@
                 <!-- producto -->
                 <div class="producto">
                     <span class="descuento">${p.descuento}%</span>
-                    <img src="${p.getFoto()}" alt="imagen de bottela de vodka">
+                    <img src="${p.getFoto()}" alt="imagen de producto">
 					
                     <div class="body">
                         <p>

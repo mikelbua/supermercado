@@ -1,79 +1,42 @@
 package com.ipartek.formacion.supermercado.modelo.dao;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import com.ipartek.formacion.supermercado.model.ConnectionManager;
 import com.ipartek.formacion.supermercado.modelo.pojo.Usuario;
-import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.Statement;
 
-public class UsuarioDAO {
+public class UsuarioDAO implements IUsuarioDAO {
 
+	private final static Logger LOG = Logger.getLogger(UsuarioDAO.class);
+	private static final String SQL_EXIST = "SELECT id , nombre , contrasenia FROM usuario WHERE nombre = ? AND contrasenia = ?;";
+	private static final String SQL_GET_ALL = "SELECT id , nombre , contrasenia FROM usuario;";
+
+	private static final String SQL_GET_BY_ID ="SELECT id, nombre ,contrasenia FROM usuario WHERE id = ? ;"; 
+	private static final String SQL_GET_INSERT ="INSERT INTO usuario (nombre , contrasenia) VALUES ( ?  ,  ? );";
+	private static final String SQL_GET_UPDATE ="UPDATE usuario SET nombre = ? , contrasenia= ? WHERE id = ? ;";
+	private static final String SQL_DELETE ="DELETE FROM usuario WHERE id = ? ;";
+	
 	private static UsuarioDAO INSTANCE = null;
 
-	private static final String SQL_GET_ALL = "SELECT u.id, u.nombre, r.id as 'id_rol', r.nombre as 'nombre_rol', contrasenya, fecha_creacion, fecha_eliminacion FROM usuario as u, rol as r WHERE u.id_rol = r.id ORDER BY id DESC LIMIT 500;";
-	private static final String SQL_GET_BY_ID = "SELECT u.id, u.nombre, r.id as 'id_rol', r.nombre as 'nombre_rol',contrasenya, fecha_creacion, fecha_eliminacion FROM usuario as u, rol as r WHERE u.id_rol = r.id AND u.id = ?;";
-	private static final String SQL_GET_ALL_BY_NOMBRE = "SELECT u.id, u.nombre, r.id as 'id_rol', r.nombre as 'nombre_rol',contrasenya, fecha_creacion, fecha_eliminacion FROM usuario as u, rol as r WHERE u.id_rol = r.id AND u.nombre LIKE ? ORDER BY u.nombre ASC LIMIT 500;";
-	private static final String SQL_EXISTE = " SELECT u.id, u.nombre, r.id as 'id_rol', r.nombre as 'nombre_rol', contrasenya, fecha_creacion, fecha_eliminacion "
-			+ " FROM usuario as u, rol as r " + " WHERE u.id_rol = r.id AND u.nombre = ? AND contrasenya = ? ;";
-	private static final String SQL_INSERT = "INSERT INTO usuario ( nombre, contrasenya) VALUES ( ? , ?);";
-	private static final String SQL_UPDATE = "UPDATE usuario SET nombre= ?, contrasenya= ? WHERE id = ?;";
-	// private static final String SQL_DELETE = "DELETE FROM usuario WHERE id = ?;";
-	private static final String SQL_DELETE_LOGICO = "UPDATE usuario SET fecha_eliminacion = CURRENT_TIMESTAMP() WHERE id = ?;";
-
-	private UsuarioDAO() {
-		super();
-	}
-
-	public static synchronized UsuarioDAO getInstance() {
+	public synchronized static UsuarioDAO getInstance() {
 
 		if (INSTANCE == null) {
 			INSTANCE = new UsuarioDAO();
 		}
 
 		return INSTANCE;
-
 	}
 
-	/**
-	 * Compruab si existe el usuario en la base datos, lo busca por su nombre y
-	 * conetrsenya
-	 * 
-	 * @param nombre
-	 * @param contrasenya
-	 * @return Usuario con datos si existe, null en caso de no existir
-	 */
-	public Usuario existe(String nombre, String contrasenya) {
-
-		Usuario usuario = null;
-
-		try (Connection con = z;
-				PreparedStatement pst = con.prepareStatement(SQL_EXISTE);) {
-
-			// sustituir ? por parametros
-			pst.setString(1, nombre);
-			pst.setString(2, contrasenya);
-
-			// ejecutar sentencia SQL y obtener Resultado
-			try (ResultSet rs = pst.executeQuery()) {
-
-				if (rs.next()) {
-					usuario = mapper(rs);
-				}
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return usuario;
-	}
-
-	public ArrayList<Usuario> getAll() {
-
+	@Override
+	public List<Usuario> getAll() {
 		ArrayList<Usuario> lista = new ArrayList<Usuario>();
 
 		try (Connection con = ConnectionManager.getConnection();
@@ -81,12 +44,12 @@ public class UsuarioDAO {
 				ResultSet rs = pst.executeQuery()) {
 
 			while (rs.next()) {
-				/*
-				 * Usuario u = new Usuario(); u.setId(rs.getInt("id"));
-				 * u.setNombre(rs.getString("nombre"));
-				 * u.setContrasenya(rs.getString("contrasenya")); lista.add(u);
-				 */
-				lista.add(mapper(rs));
+
+				Usuario u = new Usuario();
+				u.setId( rs.getInt("id"));
+				u.setNombre(rs.getString("nombre"));
+				u.setContrasenia(rs.getString("contrasenia"));
+				lista.add(u);
 
 			}
 
@@ -97,92 +60,91 @@ public class UsuarioDAO {
 		return lista;
 	}
 
-	public ArrayList<Usuario> getAllByNombre(String nombre) {
-		ArrayList<Usuario> lista = new ArrayList<Usuario>();
-
-		try (Connection con = ConnectionManager.getConnection();
-				PreparedStatement pst = con.prepareStatement(SQL_GET_ALL_BY_NOMBRE);) {
-
-			pst.setString(1, "%" + nombre + "%");
-
-			try (ResultSet rs = pst.executeQuery()) {
-
-				while (rs.next()) {
-					lista.add(mapper(rs));
-				}
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return lista;
-	}
-
+	@Override
 	public Usuario getById(int id) {
-		Usuario resul = new Usuario();
+		
+		Usuario resul = null;
 
 		try (Connection con = ConnectionManager.getConnection();
-				PreparedStatement pst = con.prepareStatement(SQL_GET_BY_ID)) {
+				PreparedStatement pst = con.prepareStatement(SQL_GET_BY_ID);
+				) {
+			
+			// sustituyo parametros en la SQL, en este caso 1º ? por id			
+						pst.setInt(1, id);
+						
+						//ejecuto la consulta
+						try( ResultSet rs = pst.executeQuery() ){
 
-			pst.setInt(1, id);
+							while (rs.next()) {
+								
+								resul = new Usuario();
+								resul.setId( rs.getInt("id"));
+								resul.setNombre(rs.getString("nombre"));
+								resul.setContrasenia(rs.getString("contrasenia"));
+									
+							}
+						}	
 
-			try (ResultSet rs = pst.executeQuery()) {
-				if (rs.next()) {
-					resul = mapper(rs);
-				}
-			}
-		} catch (Exception e) {
+					} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
 		return resul;
 	}
 
-	public boolean delete(int id) {
-		boolean resultado = false;
+	@Override
+	public Usuario delete(int id) throws Exception {
+		
+		Usuario resul = null;
 
 		try (Connection con = ConnectionManager.getConnection();
-				PreparedStatement pst = con.prepareStatement(SQL_DELETE_LOGICO);) {
+				PreparedStatement pst = con.prepareStatement(SQL_DELETE)) {
 
-			pst.setInt(1, id);
-
-			int affetedRows = pst.executeUpdate();
-			if (affetedRows == 1) {
-				resultado = true;
+			pst.setInt(1, id);			
+			
+			resul = this.getById(id); //Recuperar
+			
+			
+			int affectedRows = pst.executeUpdate();  //Eliminar
+			if (affectedRows != 1) {
+				resul = null;
+				throw new Exception("No se puede eliminar " + resul);
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 
-		return resultado;
+		return resul;
 	}
 
-	public boolean modificar(Usuario pojo) throws Exception {
-		boolean resultado = false;
+	@Override
+	public Usuario update(int id, Usuario pojo) throws Exception {
+		
 		try (Connection con = ConnectionManager.getConnection();
-				PreparedStatement pst = con.prepareStatement(SQL_UPDATE)) {
+				PreparedStatement pst = con.prepareStatement(SQL_GET_UPDATE)) {
 
 			pst.setString(1, pojo.getNombre());
-			pst.setString(2, pojo.getContrasenya());
-			pst.setInt(3, pojo.getId());
-
-			int affectedRows = pst.executeUpdate();
+			pst.setString(2, pojo.getContrasenia());
+			pst.setInt(3, id);
+			
+			int affectedRows = pst.executeUpdate();  // lanza una excepcion si nombre repetido
 			if (affectedRows == 1) {
-				resultado = true;
+				pojo.setId(id);				
+			}else {
+				throw new Exception("No se encontro registro para id=" + id);
 			}
 
 		}
-		return resultado;
+		return pojo; 
 	}
 
-	public Usuario crear(Usuario pojo) throws Exception {
+	@Override
+	public Usuario create(Usuario pojo) throws Exception {
 
 		try (Connection con = ConnectionManager.getConnection();
-				PreparedStatement pst = con.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+				PreparedStatement pst = con.prepareStatement( SQL_GET_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
 			pst.setString(1, pojo.getNombre());
-			pst.setString(2, pojo.getContrasenya());
+			pst.setString(2, pojo.getContrasenia());
 
 			int affectedRows = pst.executeUpdate();
 			if (affectedRows == 1) {
@@ -199,21 +161,34 @@ public class UsuarioDAO {
 		return pojo;
 	}
 
-	private Usuario mapper(ResultSet rs) throws SQLException {
+	@Override
+	public Usuario exist(String nombre, String contrasenia) {
+		Usuario result = null;
 
-		Usuario u = new Usuario();
-		u.setId(rs.getInt("id"));
-		u.setNombre(rs.getString("nombre"));
-		u.setContrasenya(rs.getString("contrasenya"));
-		u.setFechaCreacion(rs.getTimestamp("fecha_creacion"));
-		u.setFechaEliminacion(rs.getTimestamp("fecha_eliminacion"));
+		try (Connection con = ConnectionManager.getConnection();
+				PreparedStatement pst = con.prepareStatement(SQL_EXIST);) {
 
-		Rol rol = new Rol();
-		rol.setId(rs.getInt("id_rol"));
-		rol.setNombre(rs.getString("nombre_rol"));
-		u.setRol(rol);
+			pst.setString(1, nombre);
+			pst.setString(2, contrasenia);
+			LOG.debug(pst);
 
-		return u;
+			try (ResultSet rs = pst.executeQuery()) {
+
+				if (rs.next()) {
+					//mapear el RS al POJO.
+					result = new Usuario();
+					result.setId((rs.getInt("id")));
+					result.setNombre((rs.getString("nombre")));
+					result.setContrasenia((rs.getString("contrasenia")));
+
+				}
+			}
+
+		} catch (Exception e) {
+			LOG.error(e);
+		}
+
+		return result;
 	}
 
 }

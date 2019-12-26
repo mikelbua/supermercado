@@ -32,8 +32,10 @@
                                     <tr>
                                         <th>id</th>
                                         <th>nombre</th>
+                                        <th>imagen</th>
                                         <th>precio</th>
-                                        <th>descuento</th>
+                                        <th>descuento</th>                                        
+                                        <th>Precio final</th>                                        
                                         <th>Editar</th>
                                     </tr>
                                 </thead>
@@ -41,8 +43,10 @@
                                     <tr>
                                         <th>id</th>
                                         <th>nombre</th>
+                                        <th>imagen</th>
                                         <th>precio</th>
                                         <th>descuento</th>
+                                        <th>Precio final</th> 
                                         <th>Editar</th>
                                     </tr>
                                 </tfoot>
@@ -51,10 +55,14 @@
 	                                    <tr>
 	                                        <td>${p.id}</td>
 	                                        <td>${p.nombre}</td>
+	                                        <td><img src="${p.foto}" alt="imagen de producto" style="width: 45px; height: 45px;"></td>
 	                                        <td>
 												<fmt:formatNumber type="currency" currencySymbol="€" value="${p.precio}" />
 											</td>
 	                                        <td>${p.descuento}%</td>
+	                                        <td>
+												<fmt:formatNumber type="currency" currencySymbol="€" value="${p.precioDescuento}" />
+											</td>
 	                                        <td><a href="seguridad/productos?accion=formulario&id=${p.id}" >Editar <i class="fas fa-pencil-alt"></i></a>
 	                                        </td>
 	                                    </tr>
