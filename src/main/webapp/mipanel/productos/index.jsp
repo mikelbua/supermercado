@@ -4,7 +4,7 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
   
     	
-	<h1>TABLA seguridad/productos/index.jsp</h1>
+	<h1>TABLA mipanel/productos/index.jsp</h1>
 	
 	
 	
@@ -23,7 +23,7 @@
                     <span>
                         <h6 class="m-0 font-weight-bold text-primary float-left"><i class="fa fa-list" aria-hidden="true"></i> Listado Productos</h6>
                         </span>
-                        <a class="float-right" href="seguridad/productos?accion=formulario&id=0" ><i class="fas fa-plus-circle"></i>Nuevo Producto</a>
+                        <a class="float-right" href="mipanel/productos?accion=formulario&id=0" ><i class="fas fa-plus-circle"></i>Nuevo Producto</a>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -36,7 +36,6 @@
                                         <th>precio</th>
                                         <th>descuento</th>                                        
                                         <th>Precio final</th>                                        
-                                        <th>Usuario</th>                                        
                                         <th>Editar</th>
                                     </tr>
                                 </thead>
@@ -47,8 +46,7 @@
                                         <th>imagen</th>
                                         <th>precio</th>
                                         <th>descuento</th>
-                                        <th>Precio final</th>
-                                        <th>Usuario</th>
+                                        <th>Precio final</th> 
                                         <th>Editar</th>
                                     </tr>
                                 </tfoot>
@@ -65,8 +63,7 @@
 	                                        <td>
 												<fmt:formatNumber type="currency" currencySymbol="€" value="${p.precioDescuento}" />
 											</td>
-											<td>${p.usuario.nombre}</td>
-	                                        <td><a href="seguridad/productos?accion=formulario&id=${p.id}" >Editar <i class="fas fa-pencil-alt"></i></a>
+	                                        <td><a href="mipanel/productos?accion=formulario&id=${p.id}" >Editar <i class="fas fa-pencil-alt"></i></a>
 	                                        </td>
 	                                    </tr>
 	                                </c:forEach>

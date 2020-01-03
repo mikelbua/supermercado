@@ -1,6 +1,7 @@
-package com.ipartek.formacion.supermercado.controller.seguridad;
+package com.ipartek.formacion.supermercado.controller.mipanel;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Set;
 
 import javax.servlet.ServletConfig;
@@ -25,29 +26,28 @@ import com.ipartek.formacion.supermercado.modelo.pojo.Usuario;
 /**
  * Servlet implementation class ProductosController
  */
-@WebServlet("/seguridad/productos")
+@WebServlet("/mipanel/productos")
 public class ProductosController extends HttpServlet {
 
-	private final static Logger LOG = Logger.getLogger(SeguridadBackofficeFilter.class);
+	private final static Logger LOG = Logger.getLogger(ProductosController.class);
+
 	private static final long serialVersionUID = 1L;
 	private static final String VIEW_TABLA = "productos/index.jsp";
 	private static final String VIEW_FORM = "productos/formulario.jsp";
 	private static String vistaSeleccionda = VIEW_TABLA;
 	private static ProductoDAO daoProducto;
 	private static UsuarioDAO daoUsuario;
-
+	private Usuario uLogeado;
 	// acciones
 	public static final String ACCION_LISTAR = "listar";
 	public static final String ACCION_IR_FORMULARIO = "formulario";
 	public static final String ACCION_GUARDAR = "guardar"; // crear y modificar
 	public static final String ACCION_ELIMINAR = "eliminar";
 
-	//Crear Factoria y Validador las inicializamos en el metidi init ma abajo.
-	 ValidatorFactory factory;
-	 Validator validator;
-	
-	
-	
+	// Crear Factoria y Validador
+	ValidatorFactory factory;
+	Validator validator;
+
 	// parametros
 	String pAccion;
 	String pId;
@@ -56,15 +56,12 @@ public class ProductosController extends HttpServlet {
 	String pImagen;
 	String pDescripcion;
 	String pDescuento;
-	String pUsuarioId;
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		
 		daoProducto = ProductoDAO.getInstance();
 		daoUsuario = UsuarioDAO.getInstance();
-		
 		factory = Validation.buildDefaultValidatorFactory();
 		validator = factory.getValidator();
 	}
@@ -74,7 +71,6 @@ public class ProductosController extends HttpServlet {
 		super.destroy();
 		daoProducto = null;
 		daoUsuario = null;
-		
 		factory = null;
 		validator = null;
 	}
@@ -102,15 +98,18 @@ public class ProductosController extends HttpServlet {
 
 		// recoger parametros
 		pAccion = request.getParameter("accion");
-
 		pId = request.getParameter("id");
 		pNombre = request.getParameter("nombre");
 		pPrecio = request.getParameter("precio");
 		pImagen = request.getParameter("imagen");
 		pDescripcion = request.getParameter("descripcion");
 		pDescuento = request.getParameter("descuento");
-		pUsuarioId = request.getParameter("usuarioId");
-		
+
+		uLogeado = (Usuario) request.getSession().getAttribute("usuarioLogeado");
+
+		// TODO agujero de seguridad, comprobar que el usuario de session sea el
+		// propietario del Producto
+
 		try {
 
 			switch (pAccion) {
@@ -132,7 +131,7 @@ public class ProductosController extends HttpServlet {
 			}
 
 		} catch (Exception e) {
-			
+
 			LOG.error(e);
 
 		} finally {
@@ -141,104 +140,101 @@ public class ProductosController extends HttpServlet {
 		}
 
 	}
-	
+
 	private void irFormulario(HttpServletRequest request, HttpServletResponse response) {
 
-Producto pEditar = new Producto();
-		
-		if ( pId != null ) {
-			
+		Producto pEditar = new Producto();
+
+		if (pId != null) {
+
 			int id = Integer.parseInt(pId);
 			pEditar = daoProducto.getById(id);
-			
+
 		}
-		
-		request.setAttribute("usuarios", daoUsuario.getAll() );
-		request.setAttribute("producto", pEditar );
+
+		request.setAttribute("usuarios", daoUsuario.getAll());
+		request.setAttribute("producto", pEditar);
 		vistaSeleccionda = VIEW_FORM;
 
 	}
 
-	private void guardar(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
+	private void guardar(HttpServletRequest request, HttpServletResponse response) {
+
 		int id = Integer.parseInt(pId);
-		Producto pGuardar = new Producto();	
-		
+		Producto pGuardar = new Producto();
 		pGuardar.setId(id);
 		pGuardar.setNombre(pNombre);
-		pGuardar.setPrecio(Float.parseFloat(pPrecio));
-		pGuardar.setDescuento( Integer.parseInt(pDescuento));
-		
+		pGuardar.setDescuento(Integer.parseInt(pDescuento));
+
 		Usuario u = new Usuario();
-		u.setId(Integer.parseInt(pUsuarioId));
+		u.setId(uLogeado.getId()); // Evitar que se envie el parametro desde el formulario
 		pGuardar.setUsuario(u);
-		
+
 		Set<ConstraintViolation<Producto>> validaciones = validator.validate(pGuardar);
-		if( validaciones.size() > 0 ) {			
-			mensajeValidacion(request, validaciones);//este metodo valida y devuelve mensajes.
-		}else {	
-		
-				try {
-				
-					if ( id > 0 ) {  // modificar
-						
-						daoProducto.update(id, pGuardar);		
-						request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_PRIMARY, "Producto modificado con exito. Vaya a la tabla para visualizarlo."));
-					}else {            // crear
-						daoProducto.create(pGuardar);
-						request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_PRIMARY, "Producto creado con exito. Vaya a la tabla para visualizarlo."));
-					}
-					
-				}catch (Exception e) {  // validacion a nivel de base datos
-					
-					request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_DANGER, "El nombre ya existe, selecciona otro"));
-				}					
-			
-			
+		if (validaciones.size() > 0) {
+			mensajeValidacion(request, validaciones);
+		} else {
+
+			try {
+
+				if (id > 0) { //modificar
+
+					daoProducto.update(id, pGuardar);
+
+				} else { //crear
+					daoProducto.create(pGuardar);
+				}
+
+			} catch (Exception e) { //validacion a nivel de base datos
+
+				request.setAttribute("mensajeAlerta",
+						new Alerta(Alerta.TIPO_DANGER, "El nombre ya existe, selecciona otro"));
+			}
+
 		}
-		
-		request.setAttribute("usuarios", daoUsuario.getAll() );
+
+		request.setAttribute("usuarios", daoUsuario.getAll());
 		request.setAttribute("producto", pGuardar);
 		vistaSeleccionda = VIEW_FORM;
 
 	}
-	
-	private void mensajeValidacion(HttpServletRequest request, Set<ConstraintViolation<Producto>> validaciones ) {
+
+	private void mensajeValidacion(HttpServletRequest request, Set<ConstraintViolation<Producto>> validaciones) {
 
 		StringBuilder mensaje = new StringBuilder();
 		for (ConstraintViolation<Producto> cv : validaciones) {
-			
+
 			mensaje.append("<p>");
 			mensaje.append(cv.getPropertyPath()).append(": ");
 			mensaje.append(cv.getMessage());
 			mensaje.append("</p>");
-			
-		}
-		
-		request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_DANGER, mensaje.toString() ));
-		
-	}
-	
-	
 
-	private void eliminar(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
+		}
+
+		request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_DANGER, mensaje.toString()));
+
+	}
+
+	private void eliminar(HttpServletRequest request, HttpServletResponse response) {
+
 		int id = Integer.parseInt(pId);
 		try {
 			Producto pEliminado = daoProducto.delete(id);
-			request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_PRIMARY, "Eliminado " + pEliminado.getNombre() ));
+			request.setAttribute("mensajeAlerta",
+					new Alerta(Alerta.TIPO_PRIMARY, "Eliminado " + pEliminado.getNombre()));
 		} catch (Exception e) {
 			request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_DANGER, "No se puede Eliminar el producto"));
-			
+
 		}
-		
+
 		listar(request, response);
 
 	}
 
 	private void listar(HttpServletRequest request, HttpServletResponse response) {
 
-		request.setAttribute("productos", daoProducto.getAll());
+		ArrayList<Producto> productos = (ArrayList<Producto>) daoProducto.getAllByUser(uLogeado.getId());
+		request.setAttribute("productos", productos);
 		vistaSeleccionda = VIEW_TABLA;
 
 	}

@@ -30,6 +30,8 @@ public class Producto {
 	@Max(100)
 	private int descuento;//Este atributo sera un numero entre 1 y 100.
 	
+	private Usuario usuario;
+	
 	
 	public Producto() {
 		super();
@@ -39,10 +41,11 @@ public class Producto {
 		this.foto = "https://www.gs1es.org/wp-content/uploads/2016/02/Producto-Fresco.png";
 		this.descripcion = "";
 		this.descuento = DESCUENTO_MIN;
+		this.usuario = new Usuario();
 	}
 	
 
-	public Producto(int id, String nombre, float precio, String foto, String descripcion, int descuento) {
+	public Producto(int id, String nombre, float precio, String foto, String descripcion, int descuento , Usuario user) {
 		super();
 		this.id = id;
 		this.nombre = nombre;
@@ -50,6 +53,7 @@ public class Producto {
 		this.foto = foto;
 		this.descripcion = descripcion;
 		this.descuento = descuento;
+		this.usuario = user;
 	}
 
 	public int getId() {
@@ -120,21 +124,26 @@ public class Producto {
 	public static int getDescuentoMax() {
 		return DESCUENTO_MAX;
 	}
-
-
+	
 	public float getPrecioDescuento(){
-		float resul=0;
-		
 		return (  (this.precio * ( 100 - this.descuento )) / 100  );
 		
 	}
 	
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
 	@Override
 	public String toString() {
 		return "Producto [id=" + id + ", nombre=" + nombre + ", precio=" + precio + ", foto=" + foto + ", descripcion="
-				+ descripcion + ", descuento=" + descuento + "]";
+				+ descripcion + ", descuento=" + descuento + ", usuario=" + usuario + "]";
 	}
-	
+
 	
 	
 	

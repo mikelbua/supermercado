@@ -13,6 +13,7 @@
                                    class="form-control" 
                                    name="usuario" 
                                    required
+                                   value = "${usuarioLogeado}"
                                    placeholder="Mínimo 2 Máximo 150 caracteres"
                                    pattern=".{2,150}"
                                    aria-describedby="nombreHelp">

@@ -11,20 +11,34 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.ipartek.formacion.supermercado.model.ConnectionManager;
+import com.ipartek.formacion.supermercado.modelo.pojo.Rol;
 import com.ipartek.formacion.supermercado.modelo.pojo.Usuario;
 
 public class UsuarioDAO implements IUsuarioDAO {
 
 	private final static Logger LOG = Logger.getLogger(UsuarioDAO.class);
-	private static final String SQL_EXIST = "SELECT id , nombre , contrasenia FROM usuario WHERE nombre = ? AND contrasenia = ?;";
-	private static final String SQL_GET_ALL = "SELECT id , nombre , contrasenia FROM usuario;";
 
-	private static final String SQL_GET_BY_ID ="SELECT id, nombre ,contrasenia FROM usuario WHERE id = ? ;"; 
-	private static final String SQL_GET_INSERT ="INSERT INTO usuario (nombre , contrasenia) VALUES ( ?  ,  ? );";
-	private static final String SQL_GET_UPDATE ="UPDATE usuario SET nombre = ? , contrasenia= ? WHERE id = ? ;";
-	private static final String SQL_DELETE ="DELETE FROM usuario WHERE id = ? ;";
-	
-	private static UsuarioDAO INSTANCE = null;
+	private static final String SQL_EXIST = "SELECT u.id as 'id_usuario'," + " u.nombre as 'nombre_usuario',"
+			+ " u.contrasenia," + " r.id as 'id_rol'," + " r.nombre as 'nombre_rol' " + " FROM usuario u, rol r "
+			+ " WHERE u.id_rol = r.id " + " AND u.nombre = ?  AND u.contrasenia = ?;";
+
+	private static final String SQL_GET_ALL = "SELECT u.id as 'id_usuario'," + " u.nombre as 'nombre_usuario',"
+			+ " u.contrasenia," + " r.id as 'id_rol'," + " r.nombre as 'nombre_rol' " + " FROM usuario u, rol r"
+			+ " WHERE u.id_rol = r.id;";
+
+	private static final String SQL_GET_BY_ID = "SELECT u.id as 'id_usuario'," + " u.nombre as 'nombre_usuario',"
+			+ " u.contrasenia," + " r.id as 'id_rol'," + " r.nombre as 'nombre_rol' " + " FROM usuario u, rol "
+			+ " WHERE u.id_rol = r.id " + " AND id_usuario = ?; ";
+
+	private static final String SQL_GET_INSERT = "INSERT INTO usuario (nombre , contrasenia) VALUES ( ?  ,  ? );";
+	private static final String SQL_GET_UPDATE = "UPDATE usuario SET nombre = ? , contrasenia= ? WHERE id = ? ;";
+	private static final String SQL_DELETE = "DELETE FROM usuario WHERE id = ? ;";
+
+	private static UsuarioDAO INSTANCE;
+
+	private UsuarioDAO() {
+		super();
+	}
 
 	public synchronized static UsuarioDAO getInstance() {
 
@@ -40,72 +54,65 @@ public class UsuarioDAO implements IUsuarioDAO {
 		ArrayList<Usuario> lista = new ArrayList<Usuario>();
 
 		try (Connection con = ConnectionManager.getConnection();
-				PreparedStatement pst = con.prepareStatement(SQL_GET_ALL);
-				ResultSet rs = pst.executeQuery()) {
+				PreparedStatement pst = con.prepareStatement(SQL_GET_ALL);) {
 
-			while (rs.next()) {
+			LOG.debug(pst);
 
-				Usuario u = new Usuario();
-				u.setId( rs.getInt("id"));
-				u.setNombre(rs.getString("nombre"));
-				u.setContrasenia(rs.getString("contrasenia"));
-				lista.add(u);
+			try (ResultSet rs = pst.executeQuery()) {
+				while (rs.next()) {
+					lista.add(mapper(rs));
+				}
+			}//executeQuery
 
+			
+		} catch (SQLException e) {
+			LOG.error(e);
+		}
+		return lista;
+	}// getAll
+
+	@Override
+	public Usuario getById(int id) {
+
+		Usuario registro = null;
+
+		try (Connection con = ConnectionManager.getConnection();
+				PreparedStatement pst = con.prepareStatement(SQL_GET_BY_ID);) {
+
+			// sustituyo parametros en la SQL, en este caso 1º ? por id
+			pst.setInt(1, id);
+
+			// ejecuto la consulta
+			try (ResultSet rs = pst.executeQuery()) {
+
+				while (rs.next()) {
+
+					registro = mapper(rs);
+
+				}
 			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
-		return lista;
-	}
+		return registro;
 
-	@Override
-	public Usuario getById(int id) {
-		
-		Usuario resul = null;
-
-		try (Connection con = ConnectionManager.getConnection();
-				PreparedStatement pst = con.prepareStatement(SQL_GET_BY_ID);
-				) {
-			
-			// sustituyo parametros en la SQL, en este caso 1º ? por id			
-						pst.setInt(1, id);
-						
-						//ejecuto la consulta
-						try( ResultSet rs = pst.executeQuery() ){
-
-							while (rs.next()) {
-								
-								resul = new Usuario();
-								resul.setId( rs.getInt("id"));
-								resul.setNombre(rs.getString("nombre"));
-								resul.setContrasenia(rs.getString("contrasenia"));
-									
-							}
-						}	
-
-					} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return resul;
 	}
 
 	@Override
 	public Usuario delete(int id) throws Exception {
-		
+
 		Usuario resul = null;
 
 		try (Connection con = ConnectionManager.getConnection();
 				PreparedStatement pst = con.prepareStatement(SQL_DELETE)) {
 
-			pst.setInt(1, id);			
-			
-			resul = this.getById(id); //Recuperar
-			
-			
-			int affectedRows = pst.executeUpdate();  //Eliminar
+			pst.setInt(1, id);
+
+			resul = this.getById(id); // Recuperar
+
+			int affectedRows = pst.executeUpdate(); // Eliminar
 			if (affectedRows != 1) {
 				resul = null;
 				throw new Exception("No se puede eliminar " + resul);
@@ -118,30 +125,30 @@ public class UsuarioDAO implements IUsuarioDAO {
 
 	@Override
 	public Usuario update(int id, Usuario pojo) throws Exception {
-		
+
 		try (Connection con = ConnectionManager.getConnection();
 				PreparedStatement pst = con.prepareStatement(SQL_GET_UPDATE)) {
 
 			pst.setString(1, pojo.getNombre());
 			pst.setString(2, pojo.getContrasenia());
 			pst.setInt(3, id);
-			
-			int affectedRows = pst.executeUpdate();  // lanza una excepcion si nombre repetido
+
+			int affectedRows = pst.executeUpdate(); // lanza una excepcion si nombre repetido
 			if (affectedRows == 1) {
-				pojo.setId(id);				
-			}else {
+				pojo.setId(id);
+			} else {
 				throw new Exception("No se encontro registro para id=" + id);
 			}
 
 		}
-		return pojo; 
+		return pojo;
 	}
 
 	@Override
 	public Usuario create(Usuario pojo) throws Exception {
 
 		try (Connection con = ConnectionManager.getConnection();
-				PreparedStatement pst = con.prepareStatement( SQL_GET_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+				PreparedStatement pst = con.prepareStatement(SQL_GET_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
 			pst.setString(1, pojo.getNombre());
 			pst.setString(2, pojo.getContrasenia());
@@ -163,7 +170,8 @@ public class UsuarioDAO implements IUsuarioDAO {
 
 	@Override
 	public Usuario exist(String nombre, String contrasenia) {
-		Usuario result = null;
+
+		Usuario resul = null;
 
 		try (Connection con = ConnectionManager.getConnection();
 				PreparedStatement pst = con.prepareStatement(SQL_EXIST);) {
@@ -175,12 +183,8 @@ public class UsuarioDAO implements IUsuarioDAO {
 			try (ResultSet rs = pst.executeQuery()) {
 
 				if (rs.next()) {
-					//mapear el RS al POJO.
-					result = new Usuario();
-					result.setId((rs.getInt("id")));
-					result.setNombre((rs.getString("nombre")));
-					result.setContrasenia((rs.getString("contrasenia")));
-
+					// mapear del RS al POJO
+					resul = mapper(rs);
 				}
 			}
 
@@ -188,7 +192,23 @@ public class UsuarioDAO implements IUsuarioDAO {
 			LOG.error(e);
 		}
 
-		return result;
+		return resul;
+	}
+	
+	private Usuario mapper(ResultSet rs) throws SQLException {
+
+		Usuario u = new Usuario();
+		u.setId(rs.getInt("id_usuario"));
+		u.setNombre(rs.getString("nombre_usuario"));
+		u.setContrasenia(rs.getString("contrasenia"));
+
+		Rol r = new Rol();
+		r.setId(rs.getInt("id_rol"));
+		r.setNombre(rs.getString("nombre_rol"));
+
+		u.setRol(r);
+
+		return u;
 	}
 
 }

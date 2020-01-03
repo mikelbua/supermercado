@@ -15,7 +15,7 @@
 	<div class="row justify-content-center">
             <div class="col-4 mt-5 bg-warn">
 
-                    <form action="seguridad/productos" method="post">
+                    <form action="mipanel/productos" method="post">
                     
 
                         <div class="form-group">
@@ -58,14 +58,6 @@
                                    required
                                    placeholder="descuento del producto">
                         </div>
-                        <div class="form-group">		
-							<label>Usuario</label>
-							<select name="usuarioId" class="custom-select">
-								<c:forEach items="${usuarios}" var="u">
-									<option value="${u.id}"  ${(u.id eq producto.usuario.id)?"selected":""} >${u.nombre}</option>	
-								</c:forEach>
-							</select>
-						</div>
                         
                         <input type="hidden"  name="accion" value="guardar">
                         
@@ -94,7 +86,7 @@
 						      </div>
 						      <div class="modal-footer">
 						        <button type="button" class="btn btn-secondary" data-dismiss="modal">cerrar</button>
-						        <a class="btn btn-danger" href="seguridad/productos?id=${producto.id}&accion=eliminar" style="margin-top: 5px">Eliminar</a>
+						        <a class="btn btn-danger" href="mipanel/productos?id=${producto.id}&accion=eliminar" style="margin-top: 5px">Eliminar</a>
 						      </div>
 						    </div>
 						  </div>
