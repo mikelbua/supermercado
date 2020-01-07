@@ -22,8 +22,9 @@ public class UsuarioDAO implements IUsuarioDAO {
 			+ " u.contrasenia," + " r.id as 'id_rol'," + " r.nombre as 'nombre_rol' " + " FROM usuario u, rol r "
 			+ " WHERE u.id_rol = r.id " + " AND u.nombre = ?  AND u.contrasenia = ?;";
 
-	private static final String SQL_GET_ALL = "SELECT u.id as 'id_usuario'," + " u.nombre as 'nombre_usuario',"
-			+ " u.contrasenia," + " r.id as 'id_rol'," + " r.nombre as 'nombre_rol' " + " FROM usuario u, rol r"
+	private static final String SQL_GET_ALL = "SELECT u.id 'id_usuario', u.nombre 'nombre_usuario',"
+			+ " u.contrasenia 'contrasenia_user', r.id 'id_rol', r.nombre  'nombre_rol'"
+			+ " FROM usuario u, rol r"
 			+ " WHERE u.id_rol = r.id;";
 
 	private static final String SQL_GET_BY_ID = "SELECT u.id as 'id_usuario'," + " u.nombre as 'nombre_usuario',"

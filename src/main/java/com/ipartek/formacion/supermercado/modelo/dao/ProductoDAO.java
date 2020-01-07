@@ -13,7 +13,7 @@ import com.ipartek.formacion.supermercado.model.ConnectionManager;
 import com.ipartek.formacion.supermercado.modelo.pojo.Producto;
 import com.ipartek.formacion.supermercado.modelo.pojo.Usuario;
 
-public class ProductoDAO implements IDAO<Producto>{
+public class ProductoDAO implements IProductoDAO{
 
 	private final static Logger LOG = Logger.getLogger(ProductoDAO.class);
 	
@@ -23,20 +23,30 @@ public class ProductoDAO implements IDAO<Producto>{
 	private static final String SQL_GET_ALL = "SELECT p.id 'id_producto', p.nombre 'nombre_producto', p.precio 'precio' , p.foto 'foto' , p.descuento, u.id 'id_usuario', u.nombre 'nombre_usuario' "
 			+ " FROM producto p, usuario u " + " WHERE p.id_usuario = u.id " + " ORDER BY p.id DESC LIMIT 500;";
 
-	private static final String SQL_GET_ALL_BY_USER = "SELECT p.id 'id_producto', p.nombre 'nombre_producto', u.id 'id_usuario', u.nombre 'nombre_usuario' "
+	private static final String SQL_GET_ALL_BY_USER = "SELECT p.id 'id_producto', p.nombre 'nombre_producto', p.precio 'precio' , p.foto 'foto' , p.descuento, u.id 'id_usuario', u.nombre 'nombre_usuario'"
 			+ " FROM producto p, usuario u " + " WHERE p.id_usuario = u.id AND u.id = ? "
 			+ " ORDER BY p.id DESC LIMIT 500;";
-
-	private static final String SQL_GET_BY_ID = "SELECT p.id 'id_producto', p.nombre 'nombre_producto', u.id 'id_usuario', u.nombre 'nombre_usuario' "
-			+ " FROM producto p, usuario u " + " WHERE p.id_usuario = u.id AND p.id= ? "
+	
+	private static final String SQL_GET_BY_ID_BY_USER = "SELECT p.id 'id_producto', p.nombre 'nombre_producto', p.precio , p.foto, p.descuento, u.id 'id_usuario', u.nombre 'nombre_usuario' "
+			+ " FROM producto p, usuario u " 
+			+ " WHERE p.id_usuario = u.id AND p.id= ? AND u.id = ?"
 			+ " ORDER BY p.id DESC LIMIT 500;";
+	
+	private static final String SQL_GET_BY_ID = "SELECT 	p.id 'id_producto', p.nombre 'nombre_producto' , p.precio, p.foto 'foto' , p.descuento ,u.id 'id_usuario', u.nombre 'nombre_usuario'" 
+			+ "	FROM producto p, usuario u " 
+			+ "	WHERE p.id_usuario = u.id AND p.id= ?" 
+			+ "	ORDER BY p.id DESC LIMIT 500;";
 
 	private static final String SQL_GET_INSERT = "INSERT INTO `producto` (`nombre`, `id_usuario`) VALUES (?, ?);";
-	private static final String SQL_GET_UPDATE = "UPDATE `producto` SET `nombre`= ? , `id_usuario`= ? WHERE `id`= ? ;";
-	private static final String SQL_DELETE = "DELETE FROM producto WHERE id = ? ;";
 	
-	private ProductoDAO() {		
-		super();			
+	private static final String SQL_GET_UPDATE = "UPDATE `producto` SET `nombre`= ? , `id_usuario`= ? WHERE `id`= ? ;";
+	private static final String SQL_GET_UPDATE_BY_USER = "UPDATE `producto` SET `nombre`= ? , `id_usuario`= ? WHERE `id`= ? AND id_usuario = ? ;";
+	
+	private static final String SQL_DELETE = "DELETE FROM producto WHERE id = ? ;";
+	private static final String SQL_DELETE_BY_USER = "DELETE FROM producto WHERE id = ? AND id_usuario = ? ;";
+	
+	private ProductoDAO() {
+		super();
 	}
 	
 	public synchronized static ProductoDAO getInstance() {
@@ -69,7 +79,7 @@ public class ProductoDAO implements IDAO<Producto>{
 
 		return lista;
 	}
-
+	
 	
 	public List<Producto> getAllByUser(int idUsuario) {
 
@@ -83,7 +93,7 @@ public class ProductoDAO implements IDAO<Producto>{
 
 			try (ResultSet rs = pst.executeQuery()) {
 				while (rs.next()) {
-					lista.add(mapper(rs));
+					lista.add(mapperListaUser(rs));
 				}
 			} // executeQuery
 
@@ -103,10 +113,12 @@ public class ProductoDAO implements IDAO<Producto>{
 		try (Connection con = ConnectionManager.getConnection();
 				PreparedStatement pst = con.prepareStatement(SQL_GET_BY_ID);) {
 
-			// sustituyo parametros en la SQL, en este caso 1º ? por id
+			//sustituyE parametros en la SQL, en este caso 1º ? por id
 			pst.setInt(1, id);
-
-			// ejecuto la consulta
+			
+			LOG.debug(pst);
+			
+			//ejecuto la consulta
 			try (ResultSet rs = pst.executeQuery()) {
 
 				while (rs.next()) {
@@ -115,11 +127,43 @@ public class ProductoDAO implements IDAO<Producto>{
 			}
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LOG.error(e);
 		}
 
 		return resul;
 	}
+	
+	
+	@Override
+	public Producto getByIdByUser(int idProducto, int idUsuario) throws ProductoException, SQLException {
+		
+		Producto resul = null;
+
+		try (Connection con = ConnectionManager.getConnection();
+				PreparedStatement pst = con.prepareStatement(SQL_GET_BY_ID_BY_USER);) {
+
+			//sustituyE parametros en la SQL, en este caso 1º ? por idProducto 2º ? idUsuario
+			pst.setInt(1, idProducto);
+			pst.setInt(2, idUsuario);
+			
+			LOG.debug(pst);
+			
+			//ejecuto la consulta
+			try (ResultSet rs = pst.executeQuery()) {
+
+				if (rs.next()) {
+					resul = mapper(rs);
+				}
+				else {
+					LOG.warn("no se encuentra producto");
+					throw new ProductoException(ProductoException.EXCEPTION_UNAUTORIZED);
+				}
+			}
+
+			return resul;
+		}//try
+	}
+	
 
 	@Override
 	public Producto delete(int id) throws Exception {
@@ -128,12 +172,11 @@ public class ProductoDAO implements IDAO<Producto>{
 		try (Connection con = ConnectionManager.getConnection();
 				PreparedStatement pst = con.prepareStatement(SQL_DELETE)) {
 
-			pst.setInt(1, id);			
+			pst.setInt(1, id);
+			LOG.debug(pst);
+			resul = this.getById(id);//Recuperar
 			
-			resul = this.getById(id); //Recuperar
-			
-			
-			int affectedRows = pst.executeUpdate();  //Eliminar
+			int affectedRows = pst.executeUpdate();//Eliminar
 			if (affectedRows != 1) {
 				resul = null;
 				throw new Exception("No se puede eliminar " + resul);
@@ -143,11 +186,43 @@ public class ProductoDAO implements IDAO<Producto>{
 
 		return resul;
 	}
+	
+	
+	@Override
+	public Producto deleteByUser(int idProducto, int idUsuario) throws ProductoException {
+		Producto resul = null;
+
+		try (Connection con = ConnectionManager.getConnection();
+				PreparedStatement pst = con.prepareStatement(SQL_DELETE_BY_USER)) {
+
+			pst.setInt(1, idProducto);
+			pst.setInt(2, idUsuario);			
+			
+			resul = this.getById(idProducto); //Recuperar
+			
+			int affectedRows = pst.executeUpdate();  //Eliminar
+			if (affectedRows == 1) {
+				LOG.debug("reistro borrado");
+				
+			}else if (affectedRows == 0) {
+				LOG.error("no te pertenece este producto");
+				throw new ProductoException( ProductoException.EXCEPTION_UNAUTORIZED );
+				}
+			else {
+				LOG.error("no existe el producto");
+				throw new ProductoException( ProductoException.EXCEPTION_UNAUTORIZED );
+				}
+		} catch (SQLException e) {
+			LOG.error(e);
+			throw new ProductoException(ProductoException.EXCEPTION_UNAUTORIZED);
+		}
+		return resul;
+	}
+	
 
 	@Override
 	public Producto update(int id, Producto pojo) throws Exception {
 		
-
 
 		try (Connection con = ConnectionManager.getConnection();
 				PreparedStatement pst = con.prepareStatement(SQL_GET_UPDATE)) {
@@ -159,13 +234,43 @@ public class ProductoDAO implements IDAO<Producto>{
 			int affectedRows = pst.executeUpdate(); // lanza una excepcion si nombre repetido
 			if (affectedRows == 1) {
 				pojo.setId(id);
+				LOG.debug("producto modificado.");
 			} else {
-				throw new Exception("No se encontro registro para id=" + id);
+				throw new Exception("No se encontro registro para id =" + id);
 			}
 
 		}
 		return pojo;
 	}
+	
+	
+	@Override
+	public Producto updateByUser(int idProducto, int idUsuario, Producto pojo) throws ProductoException {
+		
+		try (Connection con = ConnectionManager.getConnection();
+				PreparedStatement pst = con.prepareStatement(SQL_GET_UPDATE_BY_USER)) {
+
+			pst.setString(1, pojo.getNombre());
+			pst.setInt(2, pojo.getUsuario().getId());
+			pst.setInt(3, idProducto);
+			pst.setInt(4, idUsuario);
+
+			LOG.debug(pst);
+			
+			int affectedRows = pst.executeUpdate();
+			if (affectedRows == 1) {
+				LOG.debug("Producto modificado correctamente");
+			} else {
+				LOG.warn("Este producto no le pertenece.");
+				throw new ProductoException(ProductoException.EXCEPTION_UNAUTORIZED);
+			}
+			
+		} catch (SQLException e) {
+			LOG.warn("El nombre ya existe");
+		}
+		return pojo;
+	}
+	
 
 	@Override
 	public Producto create(Producto pojo) throws Exception {
@@ -186,7 +291,7 @@ public class ProductoDAO implements IDAO<Producto>{
 
 			}
 
-		}
+		}//try
 
 		return pojo;
 	}
@@ -199,9 +304,8 @@ public class ProductoDAO implements IDAO<Producto>{
 		p.setNombre(rs.getString("nombre_producto"));
 		p.setPrecio(rs.getFloat("precio"));
 		p.setFoto(rs.getString("foto"));
-		p.setDescuento(rs.getInt("id_producto"));
-		
-
+		p.setDescuento(rs.getInt("descuento"));
+	
 		Usuario u = new Usuario();
 		u.setId(rs.getInt("id_usuario"));
 		u.setNombre(rs.getString("nombre_usuario"));
@@ -209,6 +313,24 @@ public class ProductoDAO implements IDAO<Producto>{
 
 		return p;
 	}
+	
+	
+	
+	private Producto mapperListaUser(ResultSet rs) throws SQLException {
+
+		Producto p = new Producto();
+		p.setId(rs.getInt("id_producto"));
+		p.setNombre(rs.getString("nombre_producto"));
+		
+		Usuario u = new Usuario();
+		u.setId(rs.getInt("id_usuario"));
+		u.setNombre(rs.getString("nombre_usuario"));
+		p.setUsuario(u);
+
+		return p;
+	}
+
+	
 	
 	
 }//class final
