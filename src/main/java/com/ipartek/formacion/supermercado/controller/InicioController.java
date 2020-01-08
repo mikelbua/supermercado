@@ -10,7 +10,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
+import com.ipartek.formacion.supermercado.modelo.dao.CategoriaDAO;
 import com.ipartek.formacion.supermercado.modelo.dao.ProductoDAO;
+import com.ipartek.formacion.supermercado.modelo.pojo.Categoria;
 import com.ipartek.formacion.supermercado.modelo.pojo.Producto;
 
 /**
@@ -19,48 +23,59 @@ import com.ipartek.formacion.supermercado.modelo.pojo.Producto;
 @WebServlet("/inicio")
 public class InicioController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static ProductoDAO dao;
-       
-  
+	private final static Logger LOG = Logger.getLogger(CategoriaDAO.class);
 	
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-    	
-    	dao=ProductoDAO.getInstance();
-    	super.init(config);
-    	
-    }
-    
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
+	private static ProductoDAO dao;
+	private static CategoriaDAO daoCategoria;
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+
+		dao = ProductoDAO.getInstance();
+		daoCategoria = CategoriaDAO.getInstance();
+		super.init(config);
+
+	}
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
 	@Override
 	public void destroy() {
 		super.destroy();
 		dao = null;
+		daoCategoria = null;
 	}
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doPost(request,response);
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doPost(request, response);
 	}
-	
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		//TODO llamar al DAO. capa modelo.
-		
-		//llamar al DAO capa modelo
-				ArrayList<Producto> productos = (ArrayList<Producto>) dao.getAll();
-				request.setAttribute("productos", productos );
-				request.setAttribute("productos", productos );		
-				request.setAttribute("mensajeAlerta", new Alerta( Alerta.TIPO_PRIMARY , "Los últimos productos destacados.") );		
 
-				request.getRequestDispatcher("index.jsp").forward(request, response);
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		
+
+		// llamar al los DAO capas modelo.
+		ArrayList<Producto> productos = (ArrayList<Producto>) dao.getAll();
+		request.setAttribute("productos", productos);
+		
+		
+		ArrayList<Categoria> categorias = (ArrayList<Categoria>) daoCategoria.getAll();
+		request.setAttribute("categorias", categorias);
+
+		request.setAttribute("mensajeAlerta", new Alerta(Alerta.TIPO_PRIMARY, "Los últimos productos destacados."));
+
+		request.getRequestDispatcher("index.jsp").forward(request, response);
 	}
 
 }

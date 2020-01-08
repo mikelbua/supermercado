@@ -52,8 +52,11 @@
             </c:if>
             
             <c:if test="${usuarioLogeado.rol.id eq 2 }" >
-            	<a class="py-2 d-none d-md-inline-block" href="seguridad/productos?accion=listar">Tabla</a>
-            	<a class="py-2 d-none d-md-inline-block" href="seguridad/productos?accion=formulario">Formulario</a>            	
+            	<a class="py-2 d-none d-md-inline-block" href="seguridad/productos?accion=listar">Tabla Productos</a>
+            	<a class="py-2 d-none d-md-inline-block" href="seguridad/productos?accion=formulario">Formulario Productos</a>
+            	
+            	<a class="py-2 d-none d-md-inline-block" href="seguridad/categorias?accion=listar">Tabla Categorias</a>
+            	<a class="py-2 d-none d-md-inline-block" href="seguridad/categorias?accion=formulario">Formulario Categorias</a>
             </c:if>	            
             
             <c:if test="${usuarioLogeado.rol.id eq 1 }" >            	

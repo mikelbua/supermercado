@@ -31,6 +31,7 @@ public class Producto {
 	private int descuento;//Este atributo sera un numero entre 1 y 100.
 	
 	private Usuario usuario;
+	private Categoria categoria;
 	
 	
 	public Producto() {
@@ -38,14 +39,15 @@ public class Producto {
 		this.id = 0;
 		this.nombre = "";
 		this.precio = 0;
-		this.foto = "https://www.gs1es.org/wp-content/uploads/2016/02/Producto-Fresco.png";
+		this.foto = "https://image.freepik.com/vector-gratis/diseno-plano-dia-mundial-alimentacion_23-2148312485.jpg";
 		this.descripcion = "";
 		this.descuento = DESCUENTO_MIN;
 		this.usuario = new Usuario();
+		this.categoria = new Categoria();
 	}
 	
 
-	public Producto(int id, String nombre, float precio, String foto, String descripcion, int descuento , Usuario user) {
+	public Producto(int id, String nombre, float precio, String foto, String descripcion, int descuento , Usuario user , Categoria cate) {
 		super();
 		this.id = id;
 		this.nombre = nombre;
@@ -54,6 +56,7 @@ public class Producto {
 		this.descripcion = descripcion;
 		this.descuento = descuento;
 		this.usuario = user;
+		this.categoria = cate;
 	}
 
 	public int getId() {
@@ -137,12 +140,26 @@ public class Producto {
 	public void setUsuario(Usuario usuario) {
 		this.usuario = usuario;
 	}
+	
+	
+	public Categoria getCategoria() {
+		return categoria;
+	}
+
+
+	public void setCategoria(Categoria categoria) {
+		this.categoria = categoria;
+	}
+
 
 	@Override
 	public String toString() {
 		return "Producto [id=" + id + ", nombre=" + nombre + ", precio=" + precio + ", foto=" + foto + ", descripcion="
-				+ descripcion + ", descuento=" + descuento + ", usuario=" + usuario + "]";
+				+ descripcion + ", descuento=" + descuento + ", usuario=" + usuario + ", categoria=" + categoria + "]";
 	}
+
+
+	
 
 	
 	

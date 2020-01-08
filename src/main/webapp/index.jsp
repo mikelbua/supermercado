@@ -1,6 +1,24 @@
 <%@ include file="/includes/header.jsp"%>
 <%@ page contentType="text/html; charset=UTF-8" %>
-  
+  	
+  	
+		<div class="form-group mt-4">		
+			<label>Filtro categoria : </label>
+			<select name="categoriaId" class="custom-select filtroCategori">
+				<c:forEach items="${categorias}" var="c">
+				    <!-- ${(c.id eq producto.usuario.id)?"selected":""} -->
+					<option value="${c.id}">${c.nombre}</option>	
+				</c:forEach>
+			</select>
+			
+			<label class="ml-4">Filtro nombre : </label>
+			<select name="categoriaId" class="custom-select filtroCategori">
+				<c:forEach items="${productos}" var="p">
+					<option value="${p.id}">${p.nombre}</option>	
+				</c:forEach>
+			</select>
+		</div>
+		
 		
         <div class="row contenedor-productos">
         
@@ -25,6 +43,7 @@
                         <p class="text-muted precio-unidad">(18,50â¬ / litro)</p>
                         <p class="descripcion">${p.descripcion}</p>
                         <p class="descripcion">id : ${p.id} | ${p.nombre}</p>
+                        <p class="descripcion">Categoria : ${p.categoria.nombre}</p>
                     </div>
 
                     <div class="botones">
@@ -33,7 +52,7 @@
                         <button class="plus">+</button>
                     </div>
 
-                    <button class="carro">aÃ±adir al carro</button>
+                    <button class="carro">añadir al carro</button>
 
                 </div>
                 <!-- /.producto -->
