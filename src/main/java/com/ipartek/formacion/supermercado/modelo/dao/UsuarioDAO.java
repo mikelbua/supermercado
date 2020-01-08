@@ -23,7 +23,7 @@ public class UsuarioDAO implements IUsuarioDAO {
 			+ " WHERE u.id_rol = r.id " + " AND u.nombre = ?  AND u.contrasenia = ?;";
 
 	private static final String SQL_GET_ALL = "SELECT u.id 'id_usuario', u.nombre 'nombre_usuario',"
-			+ " u.contrasenia 'contrasenia_user', r.id 'id_rol', r.nombre  'nombre_rol'"
+			+ " u.contrasenia, r.id 'id_rol', r.nombre  'nombre_rol'"
 			+ " FROM usuario u, rol r"
 			+ " WHERE u.id_rol = r.id;";
 

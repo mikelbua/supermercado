@@ -37,7 +37,7 @@ public class ProductoDAO implements IProductoDAO{
 			+ "	WHERE p.id_usuario = u.id AND p.id= ?" 
 			+ "	ORDER BY p.id DESC LIMIT 500;";
 
-	private static final String SQL_GET_INSERT = "INSERT INTO `producto` (`nombre`, `id_usuario`) VALUES (?, ?);";
+	private static final String SQL_GET_INSERT = "INSERT INTO `producto` (`nombre`, 'precio , 'descuento' , `id_usuario`) VALUES (?, ? , ? , ?);";
 	
 	private static final String SQL_GET_UPDATE = "UPDATE `producto` SET `nombre`= ? , `id_usuario`= ? WHERE `id`= ? ;";
 	private static final String SQL_GET_UPDATE_BY_USER = "UPDATE `producto` SET `nombre`= ? , `id_usuario`= ? WHERE `id`= ? AND id_usuario = ? ;";
@@ -155,7 +155,7 @@ public class ProductoDAO implements IProductoDAO{
 					resul = mapper(rs);
 				}
 				else {
-					LOG.warn("no se encuentra producto");
+					LOG.warn("no se encuentra producto, puede ser que no pertenezc a este usurio.");
 					throw new ProductoException(ProductoException.EXCEPTION_UNAUTORIZED);
 				}
 			}
@@ -259,14 +259,14 @@ public class ProductoDAO implements IProductoDAO{
 			
 			int affectedRows = pst.executeUpdate();
 			if (affectedRows == 1) {
-				LOG.debug("Producto modificado correctamente");
+				LOG.debug("Producto modificado correctamente.");
 			} else {
 				LOG.warn("Este producto no le pertenece.");
 				throw new ProductoException(ProductoException.EXCEPTION_UNAUTORIZED);
 			}
 			
 		} catch (SQLException e) {
-			LOG.warn("El nombre ya existe");
+			LOG.warn("El nombre ya existe.");
 		}
 		return pojo;
 	}
@@ -277,10 +277,16 @@ public class ProductoDAO implements IProductoDAO{
 		
 		try (Connection con = ConnectionManager.getConnection();
 				PreparedStatement pst = con.prepareStatement(SQL_GET_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-
+			
+			LOG.debug(pst);
+			
 			pst.setString(1, pojo.getNombre());
-			pst.setInt(2, pojo.getUsuario().getId());
-
+			pst.setFloat(2, pojo.getPrecio());
+			pst.setInt(3, pojo.getDescuento());
+			pst.setInt(4, pojo.getUsuario().getId());
+			
+			LOG.debug(pst);
+			
 			int affectedRows = pst.executeUpdate();
 			if (affectedRows == 1) {
 				// conseguimos el ID que acabamos de crear
